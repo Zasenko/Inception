@@ -3,7 +3,8 @@ all: up
 
 up:
 	@mkdir -p /home/dzasenko/data/mariadb
-	docker compose -f srcs/docker-compose.yml build --no-cache mariadb
+	@mkdir -p /home/dzasenko/data/wordpress
+	docker compose -f srcs/docker-compose.yml build --no-cache mariadb wordpress
 	docker compose -f srcs/docker-compose.yml up -d
 
 down:
@@ -14,6 +15,7 @@ clean:
 
 fclean: clean
 	rm -rf /home/dzasenko/data/mariadb
+	rm -rf /home/dzasenko/data/wordpress
 	docker system prune -af
 
 re: fclean all
