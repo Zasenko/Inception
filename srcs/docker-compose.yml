@@ -1,52 +1,78 @@
-
+# srcs/docker-compose.yml:
 services:
   mariadb:
     build: ./requirements/mariadb
-    image: mariadb
-    container_name: mariadb
+    container_name: mariadb_contaner
     restart: unless-stopped
     volumes:
-      - db-data:/var/lib/mysql
+      - db_data:/var/lib/mysql
     secrets:
       - db_root_password
       - db_password
     env_file:
       - .env
+    ports:
+      - "3306:3306"
     networks:
       - inception
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      # test: ["CMD", "mysqladmin", "ping", "--silent"]
+      interval: 5s
+      retries: 5
+      timeout: 5s
   wordpress:
-    depends_on:
-      - mariadb
     build: ./requirements/wordpress
-    image: wordpress
-    container_name: wordpress
+    container_name: wordpress_container
     restart: unless-stopped
+    depends_on:
+      # - mariadb
+      mariadb:
+        condition: service_healthy
     volumes:
-      - wordpress-data:/var/www/html
+      - wp_data:/var/www/html
     env_file:
       - .env
     networks:
       - inception
-  
-#  ngnix:
-#    depends_on:
-#      - wordpress
+    healthcheck:
+      test: ["CMD-SHELL", "wp core is-installed --allow-root && mysqladmin ping -h $MYSQL_HOST -u $MYSQL_USER -p$MYSQL_PASSWORD --silent || exit 1"]
+      interval: 30s
+      retries: 5
+      timeout: 10s
+
+    # healthcheck:
+    #   test: ["CMD", "mysqladmin", "ping", "--silent"]
+    #   interval: 30s
+    #   timeout: 10s
+    #   retries: 5
+
+  # nginx:
+  #   build: ./requirements/nginx
+  #   container_name: nginx_container
+  #   restart: unless-stopped
+  #   depends_on:
+  #     - mariadb
+  #     - wordpress
+  #   volumes:
+  #     - wp_data:/var/www/html
+  #   env_file:
+  #     - .env
+  #   ports:
+  #     - 443:443
+  #   networks:
+  #     - inception
+  #   healthcheck:
+  #     test: ["CMD", "curl", "-f", "http://localhost:80"]
+  #     interval: 30s
+  #     timeout: 10s
+  #     retries: 5  
 
 volumes:
-  db-data:
+  db_data:
     name: mariadb_data
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: /home/dzasenko/data/mariadb
-  wordpress-data:
+  wp_data:
     name: wordpress_data
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: /home/dzasenko/data/wordpress
 
 secrets:
   db_root_password:
@@ -56,5 +82,5 @@ secrets:
 
 networks:
   inception:
-    name: inception
+    name: inception_network
     driver: bridge

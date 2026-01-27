@@ -1,30 +1,40 @@
-#!/bin/sh
+#!/bin/bash
 set -e
 
-ROOT_PASS=$(cat /run/secrets/db_root_password)
-WP_PASS=$(cat /run/secrets/db_password)
+DATA_DIR=/var/lib/mysql
+SOCKET_DIR=/run/mysqld
 
-if [ ! -d "/var/lib/mysql/mysql" ]; then
-    mysql_install_db --user=mysql --ldata=/var/lib/mysql
-fi
+mkdir -p $SOCKET_DIR $DATA_DIR /var/log/mysql
+chown -R mysql:mysql $SOCKET_DIR $DATA_DIR /var/log/mysql
 
-mysqld --skip-networking &
-pid="$!"
+if [ ! -d "$DATA_DIR/mysql" ]; then
+    mariadb-install-db --user=mysql --datadir=$DATA_DIR
+    mysqld_safe --datadir=$DATA_DIR --skip-networking &
+    pid="$!"
 
-until mysqladmin ping --silent; do
-    sleep 1
-done
+    timeout=30
+    count=0
+    until mysqladmin ping --silent; do
+        sleep 2
+        count=$((count+1))
+        if [ $count -ge $timeout ]; then
+            echo "Error: MariaDB failed to start" >&2
+            exit 1
+        fi
+    done
 
-mysql -u root <<EOF
-SET PASSWORD FOR 'root'@'localhost' = PASSWORD('${ROOT_PASS}');
+    # создаём пользователя и базу
+    mysql -u root <<EOF
+ALTER USER 'root'@'localhost' IDENTIFIED BY '${ROOT_PASS}';
 CREATE DATABASE IF NOT EXISTS ${MYSQL_DATABASE};
-CREATE USER IF NOT EXISTS '${MYSQL_USER}'@'%' IDENTIFIED BY '${WP_PASS}';
+CREATE USER '${MYSQL_USER}'@'%' IDENTIFIED BY '${WP_PASS}';
 GRANT ALL PRIVILEGES ON ${MYSQL_DATABASE}.* TO '${MYSQL_USER}'@'%';
 FLUSH PRIVILEGES;
 EOF
 
-mysqladmin shutdown
-wait "$pid"
+    mysqladmin shutdown
+    wait "$pid"
+fi
 
-exec mysqld
-
+# запускаем MariaDB в foreground
+exec mysqld_safe --datadir=$DATA_DIR

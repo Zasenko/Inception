@@ -1,3 +1,5 @@
+
+# srcs/requirements/wordpress/Dockerfile:
 FROM debian:bookworm
 
 RUN apt-get update && apt-get install -y \
@@ -15,14 +17,14 @@ RUN apt-get update && apt-get install -y \
 
 WORKDIR /var/www/html
 
-COPY tools/entrypoint.sh /usr/local/bin/entrypoint.sh
 COPY conf/www.conf /etc/php/8.2/fpm/pool.d/www.conf
+COPY tools/script.sh /usr/local/bin/script.sh
 
-RUN chmod +x /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/script.sh
 
 EXPOSE 9000
 
-ENTRYPOINT ["entrypoint.sh"]
+ENTRYPOINT ["/usr/local/bin/script.sh"]
 CMD ["php-fpm8.2", "-F"]
 # 	•	-F = foreground (контейнер не умирает)
 # https://www.php.net/manual/en/install.fpm.configuration.php
