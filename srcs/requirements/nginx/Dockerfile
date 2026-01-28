@@ -1,3 +1,6 @@
+
+
+
 FROM debian:bookworm
 
 RUN apt-get update && apt-get install -y \
@@ -5,14 +8,17 @@ RUN apt-get update && apt-get install -y \
     openssl \
     && rm -rf /var/lib/apt/lists/*
 
-COPY conf/default.conf /etc/nginx/conf.d/default.conf
 
-# Copy the script that generates the SSL certs
-COPY ./tools/script.sh /root/script.sh
+RUN openssl req -x509 -nodes -days 365 -newkey rsa:2048 \ 
+    -keyout /etc/ssl/inception.key \
+    -out /etc/ssl/inception.crt \
+    -subj="/C=MA/ST=dzasenko/L=dzasenko/O=1337 School/OU=dzasenko/CN=dzasenko.42.fr"
 
-# Make the script executable
-RUN chmod +x /root/script.sh
+COPY ./tools/script.sh /tmp/certs.sh
 
-# Run the script when the container starts
-CMD ["/root/script.sh"]
+RUN chmod +x /tmp/certs.sh
 
+COPY ./conf/default.conf /etc/nginx/sites-available/default
+
+
+ENTRYPOINT ["/tmp/certs.sh"]

@@ -56,6 +56,8 @@ services:
       - "443:443"
     env_file:
       - .env
+    volumes:
+      - wp_data:/var/www/html
     networks:
       - inception
     restart: unless-stopped

@@ -1,14 +1,14 @@
 #!/bin/bash
 
-# Создание директории для сертификатов
-mkdir -p /root/certs && cd /root/certs
+# Static values for the certificates and domain
+ssl_certificate="/etc/ssl/inception.crt"
+ssl_certificate_key="/etc/ssl/inception.key"
+nginx_domain="dzasenko.42.fr"
 
-# Генерация самоподписанного сертификата
-openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout nginx-selfsigned.key -out nginx-selfsigned.crt -subj "/C=RU/ST=Moscow/L=Moscow/O=MyCompany/OU=IT/CN=$DOMAIN_NAME"
+# Replace the placeholders in the nginx configuration file
+sed -i "s|my_cert|$ssl_certificate|g" /etc/nginx/sites-available/default
+sed -i "s|my_key|$ssl_certificate_key|g" /etc/nginx/sites-available/default
+sed -i "s|DOMAIN_NAME|$nginx_domain|g" /etc/nginx/sites-available/default
 
-# Установка прав на файлы сертификатов
-chmod 600 nginx-selfsigned.key
-chmod 600 nginx-selfsigned.crt
-
-# Запуск Nginx
-exec nginx -g "daemon off;"
+# Start nginx
+nginx -g "daemon off;"
