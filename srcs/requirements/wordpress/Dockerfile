@@ -1,4 +1,3 @@
-
 # srcs/requirements/wordpress/Dockerfile:
 FROM debian:bookworm
 
@@ -11,20 +10,32 @@ RUN apt-get update && apt-get install -y \
     php8.2-xml \
     php8.2-mbstring \
     php8.2-zip \
-    curl \
+    wget \
     mariadb-client \
-    && rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/
+    # && service php8.2-fpm start
 
-WORKDIR /var/www/html
+# # Создаем директорию, если она не существует
+# RUN mkdir -p /run/php /var/run/php /var/www/html
+# WORKDIR /var/www/html
+# RUN chown -R www-data:www-data /var/www/html
 
-COPY conf/www.conf /etc/php/8.2/fpm/pool.d/www.conf
-COPY tools/script.sh /usr/local/bin/script.sh
 
-RUN chmod +x /usr/local/bin/script.sh
+# # COPY conf/www.conf /etc/php/8.2/fpm/pool.d/www.conf
+# COPY tools/script.sh /usr/local/bin/script.sh
+# RUN chmod +x /usr/local/bin/script.sh
 
-EXPOSE 9000
+# RUN mkdir -p /var/www/html && chown -R www-data:www-data /var/www/html
 
-ENTRYPOINT ["/usr/local/bin/script.sh"]
-CMD ["php-fpm8.2", "-F"]
-# 	•	-F = foreground (контейнер не умирает)
-# https://www.php.net/manual/en/install.fpm.configuration.php
+# # Меняем владельца
+
+
+# EXPOSE 9000
+
+# CMD ["/usr/local/bin/script.sh"]
+
+COPY ./tools/script.sh .
+
+RUN chmod +x script.sh
+
+CMD ["./script.sh"]

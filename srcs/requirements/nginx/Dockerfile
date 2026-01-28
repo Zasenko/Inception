@@ -5,6 +5,14 @@ RUN apt-get update && apt-get install -y \
     openssl \
     && rm -rf /var/lib/apt/lists/*
 
-COPY conf/nginx.conf /etc/nginx/nginx.conf
+COPY conf/default.conf /etc/nginx/conf.d/default.conf
 
-CMD ["nginx", "-g", "daemon off;"]
+# Copy the script that generates the SSL certs
+COPY ./tools/script.sh /root/script.sh
+
+# Make the script executable
+RUN chmod +x /root/script.sh
+
+# Run the script when the container starts
+CMD ["/root/script.sh"]
+
