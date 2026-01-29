@@ -32,8 +32,8 @@ services:
       - wp_data:/var/www/html
     env_file:
       - .env
-    expose:
-      - "9000"
+    ports:
+      - "9000:9000"
     networks:
       - inception
     healthcheck:
@@ -54,6 +54,7 @@ services:
         condition: service_healthy
     ports:
       - "443:443"
+      - "80:80"
     env_file:
       - .env
     volumes:

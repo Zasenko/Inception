@@ -9,6 +9,8 @@ COPY ./conf/50-server.cnf /etc/mysql/mariadb.conf.d/50-server.cnf
 
 RUN chmod +x installer.sh
 
+EXPOSE 3306
+
 CMD ["./installer.sh"]
 
 # RUN apt-get update && apt-get install -y \

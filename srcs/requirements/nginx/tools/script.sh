@@ -1,14 +1,12 @@
 #!/bin/bash
 
-# Static values for the certificates and domain
-ssl_certificate="/etc/ssl/inception.crt"
-ssl_certificate_key="/etc/ssl/inception.key"
-nginx_domain="dzasenko.42.fr"
+mkdir -p /etc/nginx/ssl
+chmod 700 /etc/nginx/ssl
 
-# Replace the placeholders in the nginx configuration file
-sed -i "s|my_cert|$ssl_certificate|g" /etc/nginx/sites-available/default
-sed -i "s|my_key|$ssl_certificate_key|g" /etc/nginx/sites-available/default
-sed -i "s|DOMAIN_NAME|$nginx_domain|g" /etc/nginx/sites-available/default
+openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /etc/nginx/ssl/inception.key -out /etc/nginx/ssl/inception.crt -subj="/C=MA/ST=dzasenko/L=dzasenko/O=1337 School/OU=dzasenko/CN=dzasenko.42.fr"
+
+chmod 644 /etc/nginx/ssl/inception.crt /etc/nginx/ssl/inception.key
 
 # Start nginx
 nginx -g "daemon off;"
+

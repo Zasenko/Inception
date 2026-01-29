@@ -12,7 +12,21 @@ RUN apt-get update && apt-get install -y \
     php8.2-zip \
     wget \
     mariadb-client \
+    net-tools \
+    curl \
     && rm -rf /var/lib/apt/lists/
+
+COPY ./tools/script.sh .
+COPY ./conf/www.conf /etc/php/8.2/fpm/pool.d/
+
+RUN chmod +x script.sh
+
+EXPOSE 9000
+
+CMD ["./script.sh"]
+
+
+
     # && service php8.2-fpm start
 
 # # Создаем директорию, если она не существует
@@ -33,9 +47,3 @@ RUN apt-get update && apt-get install -y \
 # EXPOSE 9000
 
 # CMD ["/usr/local/bin/script.sh"]
-
-COPY ./tools/script.sh .
-
-RUN chmod +x script.sh
-
-CMD ["./script.sh"]

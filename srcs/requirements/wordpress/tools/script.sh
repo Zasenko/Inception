@@ -7,7 +7,6 @@ chmod +x wp-cli.phar
 mv wp-cli.phar /usr/local/bin/wp
 
 chmod 777 /var/www/html
-
 chmod 777 /var/www/
 
 cd /var/www/html
@@ -21,6 +20,7 @@ su www-data -s /bin/bash -c "
 "
 
 exec php-fpm8.2 -F
+
 
 
 # #!/bin/bash
