@@ -1,30 +1,22 @@
 #!/bin/bash
 
+WP_PATH="/var/www/html"
+
 wget https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
-
 chmod +x wp-cli.phar
-
 mv wp-cli.phar /usr/local/bin/wp
-
-chown -R www-data:www-data /var/www/html
-chmod -R 755 /var/www/html
-
-cd /var/www/html
+mkdir -p $WP_PATH
+chown -R www-data:www-data $WP_PATH
+cd $WP_PATH
 
 su www-data -s /bin/bash -c "
-    cd /var/www/html
-    
+    cd $WP_PATH
     if [ ! -f wp-config.php ]; then
         echo 'WordPress not found, installing...'
-    
-    wp core download
-    wp core config --dbname=$MYSQL_DATABASE --dbuser=$MYSQL_USER --dbpass=$MYSQL_PASSWORD --dbhost=$WP_HOST
-    wp core install --url=$DOMAIN_NAME --title=$DOMAIN_NAME --admin_user=$WP_USER --admin_password=$WP_ADMIN_PASSWORD --admin_email=$WP_ADMIN_EMAIL
-    wp user create $WP_EMAIL --role=author --user_pass=$WP_PASSWORD
-
-    else
-        echo 'WordPress already installed.'
-        exit 0
+        wp core download
+        wp core config --dbname=$MYSQL_DATABASE --dbuser=$MYSQL_USER --dbpass=$MYSQL_PASSWORD --dbhost=$WP_HOST
+        wp core install --url=$DOMAIN_NAME --title=$DOMAIN_NAME --admin_user=$WP_USER --admin_password=$WP_ADMIN_PASSWORD --admin_email=$WP_ADMIN_EMAIL
+        wp user create $WP_USER $WP_EMAIL --role=author --user_pass=$WP_PASSWORD
     fi
 "
 
@@ -40,8 +32,6 @@ exec php-fpm8.2 -F
 # mkdir -p $WP_PATH
 
 # chown -R www-data:www-data $WP_PATH
-
-
 # echo "WP_HOST: $WP_HOST"
 # echo "WP_NAME: $WP_NAME" 
 # echo "WP_USER: $WP_USER"

@@ -37,7 +37,7 @@ services:
     networks:
       - inception
     healthcheck:
-      test: ["CMD", "mysql", "-h", "mariadb", "-u", "$WP_USER", "-p$WP_PASSWORD", "-e", "SELECT 1"]
+      test: ["CMD", "mysql", "-h", "$WP_HOST", "-P", "$WP_PORT", "-u", "$WP_USER", "-p$WP_PASSWORD", "-e", "SELECT 1"]
       interval: 5s
       retries: 5
       timeout: 5s

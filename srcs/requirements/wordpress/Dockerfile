@@ -1,4 +1,3 @@
-# srcs/requirements/wordpress/Dockerfile:
 FROM debian:bookworm
 
 RUN apt-get update && apt-get install -y \
@@ -12,8 +11,6 @@ RUN apt-get update && apt-get install -y \
     php8.2-zip \
     wget \
     mariadb-client \
-    net-tools \
-    curl \
     && rm -rf /var/lib/apt/lists/
 
 COPY ./tools/script.sh .
@@ -27,7 +24,7 @@ CMD ["./script.sh"]
 
 
 
-    # && service php8.2-fpm start
+ # && service php8.2-fpm start
 
 # # Создаем директорию, если она не существует
 # RUN mkdir -p /run/php /var/run/php /var/www/html
