@@ -9,4 +9,4 @@ echo "FLUSH PRIVILEGES;" >> init.sql
 mkdir -p /run/mysqld
 mv init.sql /etc/mysql/init.sql
 
-exec "mysqld"
+exec mysqld
