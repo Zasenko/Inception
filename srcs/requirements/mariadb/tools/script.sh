@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 touch init.sql
 
 echo "CREATE DATABASE IF NOT EXISTS $MYSQL_DATABASE;" >> init.sql

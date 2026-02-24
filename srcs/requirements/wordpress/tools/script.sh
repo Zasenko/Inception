@@ -1,13 +1,17 @@
 #!/bin/bash
-
+set -e
 WP_PATH="/var/www/html"
 
 wget https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
 chmod +x wp-cli.phar
+
 mv wp-cli.phar /usr/local/bin/wp
 mkdir -p $WP_PATH
+
 chown -R www-data:www-data $WP_PATH
 cd $WP_PATH
+
+chmod -R 777 /var/www
 
 su www-data -s /bin/bash -c "
     cd $WP_PATH
@@ -15,11 +19,12 @@ su www-data -s /bin/bash -c "
         echo 'WordPress not found, installing...'
         wp core download
         wp core config --dbname=$MYSQL_DATABASE --dbuser=$MYSQL_USER --dbpass=$MYSQL_PASSWORD --dbhost=$WP_HOST
-        wp core install --url=$DOMAIN_NAME --title=$DOMAIN_NAME --admin_user=$WP_USER --admin_password=$WP_ADMIN_PASSWORD --admin_email=$WP_ADMIN_EMAIL
+        wp core install --url=$DOMAIN_NAME --title=$DOMAIN_NAME --admin_user=$WP_ADMIN_USER --admin_password=$WP_ADMIN_PASSWORD --admin_email=$WP_ADMIN_EMAIL --skip-email
         wp user create $WP_USER $WP_EMAIL --role=author --user_pass=$WP_PASSWORD
+	wp user create $WP_ADMIN_USER $WP_ADMIN_EMAIL --role=author --user_pass=$WP_ADMIN_PASSWORD
     fi
 "
-
+chmod -R 755 /var/www
 exec php-fpm8.2 -F
 
 
