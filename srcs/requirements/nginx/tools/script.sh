@@ -7,6 +7,5 @@ openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /etc/nginx/ssl/incep
 
 chmod 644 /etc/nginx/ssl/inception.crt /etc/nginx/ssl/inception.key
 
-# Start nginx
 nginx -g "daemon off;"
 

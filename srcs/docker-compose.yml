@@ -10,8 +10,6 @@ services:
       - db_password
     env_file:
       - .env
-    ports:
-      - "3306:3306"
     networks:
       - inception
     healthcheck:
@@ -31,12 +29,10 @@ services:
       - wp_data:/var/www/html
     env_file:
       - .env
-    ports:
-      - "9000:9000"
     networks:
       - inception
     healthcheck:
-      test: ["CMD", "mysql", "-h", "$WP_HOST", "-P", "$WP_PORT", "-u", "$WP_USER", "-p$WP_PASSWORD", "-e", "SELECT 1"]
+      test: ["CMD", "bash", "-c", "mysql -h $WP_HOST -P $WP_PORT -u $MYSQL_USER -p$MYSQL_PASSWORD $MYSQL_DATABASE -e 'SHOW TABLES LIKE \"wp_options\";' | grep wp_options >/dev/null"]
       interval: 5s
       retries: 5
       timeout: 5s
@@ -47,13 +43,10 @@ services:
       context: ./requirements/nginx
     container_name: nginx
     depends_on:
-      mariadb:
-        condition: service_healthy
       wordpress:
         condition: service_healthy
     ports:
       - "443:443"
-      - "80:80"
     env_file:
       - .env
     volumes:
@@ -61,6 +54,12 @@ services:
     networks:
       - inception
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "https://localhost" ]
+      interval: 10s
+      retries: 5
+      timeout: 5s
+      start_period: 15s
 
 volumes:
   db_data:
@@ -68,13 +67,13 @@ volumes:
     driver_opts:
       type: none 
       o: bind
-      device: /home/dzasenko/data/mariadb
+      device: /home/${USER}/data/mariadb
   wp_data:
     driver: local
     driver_opts:
       type: none 
       o: bind
-      device: /home/dzasenko/data/wordpress
+      device: /home/${USER}/data/wordpress
 
 secrets:
   db_root_password:
