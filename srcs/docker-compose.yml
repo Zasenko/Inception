@@ -5,17 +5,17 @@ services:
     restart: unless-stopped
     volumes:
       - db_data:/var/lib/mysql
-    secrets:
-      - db_root_password
-      - db_password
+    # secrets:
+    #   - db_root_password
+    #   - db_password
     env_file:
       - .env
     networks:
       - inception
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "--silent"]
+      test: ["CMD", "mysqladmin", "ping", "-u", "root", "-p${MYSQL_ROOT_PASSWORD}", "--silent"]
       interval: 5s
-      retries: 5
+      retries: 10
       timeout: 5s
   
   wordpress:
@@ -34,7 +34,7 @@ services:
     healthcheck:
       test: ["CMD", "bash", "-c", "mysql -h $WP_HOST -P $WP_PORT -u $MYSQL_USER -p$MYSQL_PASSWORD $MYSQL_DATABASE -e 'SHOW TABLES LIKE \"wp_options\";' | grep wp_options >/dev/null"]
       interval: 5s
-      retries: 5
+      retries: 10
       timeout: 5s
       start_period: 10s
 
@@ -54,12 +54,12 @@ services:
     networks:
       - inception
     restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "curl", "-f", "https://localhost" ]
-      interval: 10s
-      retries: 5
-      timeout: 5s
-      start_period: 15s
+    # healthcheck:
+    #   test: ["CMD", "curl", "-f", "https://localhost" ]
+    #   interval: 10s
+    #   retries: 10
+    #   timeout: 5s
+    #   start_period: 15s
 
 volumes:
   db_data:
@@ -75,14 +75,13 @@ volumes:
       o: bind
       device: /home/${USER}/data/wordpress
 
-secrets:
-  db_root_password:
-    file: ../secrets/db_root_password.txt
-  db_password:
-    file: ../secrets/db_password.txt
+# secrets:
+#   db_root_password:
+#     file: ../secrets/db_root_password.txt
+#   db_password:
+#     file: ../secrets/db_password.txt
 
 networks:
   inception:
     name: inception_network
     driver: bridge
-

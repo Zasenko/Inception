@@ -1,10 +1,11 @@
-# Makefile:
-all: up
+all: build up
 
-up:
+build:
 	mkdir -p /home/$(USER)/data/mariadb
 	mkdir -p /home/$(USER)/data/wordpress
 	sudo chown -R $(USER):$(USER) /home/$(USER)/data
+	
+up:
 	docker compose -f srcs/docker-compose.yml build --no-cache mariadb wordpress nginx
 	docker compose -f srcs/docker-compose.yml up -d
 
@@ -21,5 +22,5 @@ fclean: clean
 
 re: fclean all
 
-.PHONY: all up down clean fclean re
+.PHONY: all build up down clean fclean re
 
