@@ -14,10 +14,10 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/
 
 COPY ./conf/www.conf /etc/php/8.2/fpm/pool.d/
-COPY ./tools/script.sh .
+COPY ./tools/entrypoint.sh .
 
-RUN chmod +x script.sh
+RUN chmod +x entrypoint.sh
 
 EXPOSE 9000
 
-CMD ["./script.sh"]
+CMD ["./entrypoint.sh"]

@@ -6,10 +6,10 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 COPY ./conf/default.conf /etc/nginx/sites-available/default
-COPY ./tools/script.sh script.sh
+COPY ./tools/entrypoint.sh entrypoint.sh
 
-RUN chmod +x script.sh
+RUN chmod +x entrypoint.sh
 
 EXPOSE 443
 
-CMD ["./script.sh"]
+CMD ["./entrypoint.sh"]

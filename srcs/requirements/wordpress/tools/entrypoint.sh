@@ -1,37 +1,36 @@
 #!/bin/bash
 set -e
 
-WP_PATH="/var/www/html"
-
 wget https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
 chmod +x wp-cli.phar
 mv wp-cli.phar /usr/local/bin/wp
 
-mkdir -p $WP_PATH
+mkdir -p /var/www/html
 mkdir -p /var/www/.wp-cli/cache
 
 chown -R www-data:www-data /var/www
 chmod -R 755 /var/www
 
-echo "Waiting for MariaDB to be ready..."
+echo "Waiting for MariaDB..."
+
 TIMEOUT=60
-count=0
-while ! mysql -h"$WP_HOST" -P"$WP_PORT" -u"$MYSQL_USER" -p"$MYSQL_PASSWORD" -e "SELECT 1;" >/dev/null 2>&1; do
-    if [ $count -ge $TIMEOUT ]; then
+COUNT=0
+while ! mysql -h"$WP_HOST" -P"$WP_PORT" --user="$MYSQL_USER" --password="$MYSQL_PASSWORD" -e "SELECT 1;" >/dev/null 2>&1; do
+    if [ $COUNT -ge $TIMEOUT ]; then
         echo "Error: MariaDB is still unavailable after $TIMEOUT seconds"
         exit 1
     fi
     echo "MariaDB is unavailable: waiting 2 seconds..."
     sleep 2
-    count=$((count + 2))
+    COUNT=$((COUNT + 2))
 done
 echo "MariaDB is ready!"
 
 su www-data -s /bin/bash -c "
-    cd $WP_PATH
+    cd /var/www/html
     if ! wp core is-installed > /dev/null 2>&1; then
         echo 'WordPress not found, installing...'
-        wp core download --path=$WP_PATH
+        wp core download --path=/var/www/html
         wp core config --dbname=$MYSQL_DATABASE --dbuser=$MYSQL_USER --dbpass=$MYSQL_PASSWORD --dbhost=$WP_HOST
         echo 'Installing WP and creating admin user...'
         wp core install --url="https://$DOMAIN_NAME" --title=$DOMAIN_NAME --admin_user=$WP_ADMIN --admin_password=$WP_ADMIN_PASSWORD --admin_email=$WP_ADMIN_EMAIL --skip-email
