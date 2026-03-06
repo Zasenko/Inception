@@ -13,8 +13,8 @@ if [ ! -d "/var/lib/mysql/mysql" ] || [ ! -d "/var/lib/mysql/${MYSQL_DATABASE}" 
     
     if [ ! -d "/var/lib/mysql/mysql" ]; then
         echo "Installing MariaDB..."
-        # mariadb-install-db --user=mysql --datadir=/var/lib/mysql --rpm
-        mysql_install_db --user=mysql --datadir=/var/lib/mysql --rpm
+        mariadb-install-db --user=mysql --datadir=/var/lib/mysql --rpm
+        # mysql_install_db --user=mysql --datadir=/var/lib/mysql --rpm
     fi
     
     echo "Starting MariaDB for setup..."

@@ -15,7 +15,7 @@ echo "Waiting for MariaDB..."
 
 TIMEOUT=60
 COUNT=0
-while ! mysql -h"$WP_HOST" -P"$WP_PORT" --user="$MYSQL_USER" --password="$MYSQL_PASSWORD" -e "SELECT 1;" >/dev/null 2>&1; do
+while ! mysql --host="$WP_HOST" --port="$WP_PORT" --user="$MYSQL_USER" --password="$MYSQL_PASSWORD" -e "SELECT 1;" >/dev/null 2>&1; do
     if [ $COUNT -ge $TIMEOUT ]; then
         echo "Error: MariaDB is still unavailable after $TIMEOUT seconds"
         exit 1
