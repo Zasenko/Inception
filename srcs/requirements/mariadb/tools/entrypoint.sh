@@ -7,27 +7,26 @@ chown -R mysql:mysql /var/lib/mysql
 chown -R mysql:mysql /var/run/mysqld
 chmod 755 /var/run/mysqld
 
-if [ ! -d "/var/lib/mysql/mysql" ] || [ ! -d "/var/lib/mysql/${MYSQL_DATABASE}" ]; then
-    if [ ! -d "/var/lib/mysql/mysql" ]; then
-        echo "Installing MariaDB..."
-        mariadb-install-db --user=mysql --datadir=/var/lib/mysql --rpm
-    fi
+if [ ! -d "/var/lib/mysql/mysql" ]; then
+    echo "Installing MariaDB..."
+    mariadb-install-db --user=mysql --datadir=/var/lib/mysql --rpm
     
     echo "Starting MariaDB for setup..."
-    mysqld --user=mysql --skip-networking & PID=$!
+    mysqld --user=mysql --skip-networking & PID="$!"
     
-    for i in {1..60}; do
-        echo "Waiting for MariaDB: attempt $i"
-        if mysqladmin ping --silent 2>/dev/null; then
-            break
+    TIMEOUT=60
+    COUNT=0
+    while ! mysql --host="$WP_HOST" --port="$WP_PORT" --user="$WP_USER" --password="$(cat "$WP_PASSWORD")" -e "SELECT 1;" >/dev/null 2>&1
+    do
+        if [ "$COUNT" -ge "$TIMEOUT" ]; then
+            echo "ERROR: MariaDB failed to start"
+            exit 1
         fi
+        echo "Waiting for MariaDB... ${COUNT}/${TIMEOUT}s"
         sleep 1
+        COUNT=$((COUNT + 1))
     done
-
-    if ! mysqladmin ping --silent 2>/dev/null; then
-        echo "Error: MariaDB failed to start"
-        exit 1
-    fi
+    echo "MariaDB is ready!"
 
     echo "Creating DataBase and user..."
     mysql -u root << EOF
