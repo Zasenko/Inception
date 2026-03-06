@@ -5,15 +5,18 @@ services:
     restart: unless-stopped
     volumes:
       - db_data:/var/lib/mysql
-    # secrets:
-    #   - db_root_password
-    #   - db_password
-    env_file:
-      - .env
+    secrets:
+      - db_root_password
+      - db_password
+    environment:
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_ROOT_PASSWORD: /run/secrets/db_root_password
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: /run/secrets/db_password
     networks:
       - inception
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-u", "root", "-p${MYSQL_ROOT_PASSWORD}", "--silent"]
+      test: ["CMD", "bash", "-c", "mysqladmin ping -u root -p$(cat /run/secrets/db_root_password) --silent"]
       interval: 5s
       retries: 10
       timeout: 5s
@@ -27,12 +30,22 @@ services:
         condition: service_healthy
     volumes:
       - wp_data:/var/www/html
-    env_file:
-      - .env
+    secrets:
+      - db_password
+    environment:
+      DOMAIN_NAME: ${DOMAIN_NAME}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      WP_HOST: ${WP_HOST}
+      WP_PORT: ${WP_PORT}
+      WP_USER: ${WP_USER}
+      WP_PASSWORD: /run/secrets/db_password
+      WP_ADMIN_EMAIL: ${WP_ADMIN_EMAIL}
+      WP_AUTOR: ${WP_AUTOR}
+      WP_AUTOR_EMAIL: ${WP_AUTOR_EMAIL}
     networks:
       - inception
     healthcheck:
-      test: ["CMD", "bash", "-c", "mysql -h $WP_HOST -P $WP_PORT -u $MYSQL_USER -p$MYSQL_PASSWORD $MYSQL_DATABASE -e 'SHOW TABLES LIKE \"wp_options\";' | grep wp_options >/dev/null"]
+      test: ["CMD", "bash", "-c", "mysql -h $WP_HOST -P $WP_PORT -u $WP_USER -p$(cat /run/secrets/db_password) $MYSQL_DATABASE -e 'SHOW TABLES LIKE \"wp_options\";' | grep wp_options >/dev/null"]
       interval: 5s
       retries: 10
       timeout: 5s
@@ -47,19 +60,11 @@ services:
         condition: service_healthy
     ports:
       - "443:443"
-    env_file:
-      - .env
     volumes:
       - wp_data:/var/www/html
     networks:
       - inception
     restart: unless-stopped
-    # healthcheck:
-    #   test: ["CMD", "curl", "-f", "https://localhost" ]
-    #   interval: 10s
-    #   retries: 10
-    #   timeout: 5s
-    #   start_period: 15s
 
 volumes:
   db_data:
@@ -75,11 +80,11 @@ volumes:
       o: bind
       device: /home/${USER}/data/wordpress
 
-# secrets:
-#   db_root_password:
-#     file: ../secrets/db_root_password.txt
-#   db_password:
-#     file: ../secrets/db_password.txt
+secrets:
+  db_root_password:
+    file: ../secrets/db_root_password.txt
+  db_password:
+    file: ../secrets/db_password.txt
 
 networks:
   inception:
