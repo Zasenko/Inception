@@ -10,14 +10,15 @@ chmod 755 /var/run/mysqld
 ROOT_PASSWORD=$(cat "$MYSQL_ROOT_PASSWORD")
 USER_PASSWORD=$(cat "$MYSQL_PASSWORD")
 
-if [ ! -d "/var/lib/mysql/mysql" ]; then
-    echo "Installing MariaDB..."
-    mariadb-install-db --user=mysql --datadir=/var/lib/mysql
+if [ ! -d "/var/lib/mysql/mysql" ] || [ ! -d "/var/lib/mysql/${MYSQL_DATABASE}" ]; then
+    if [ ! -d "/var/lib/mysql/mysql" ]; then
+        echo "Installing MariaDB..."
+        mariadb-install-db --user=mysql --datadir=/var/lib/mysql
+    fi
     
     echo "Starting temporary MariaDB for setup..."
     mysqld --user=mysql --skip-networking & PID=$!
     
-
     TIMEOUT=60
     COUNT=0
     while ! mysqladmin -uroot ping --silent >/dev/null 2>&1; do
