@@ -11,17 +11,17 @@ mkdir -p /var/www/.wp-cli/cache
 chown -R www-data:www-data /var/www
 chmod -R 755 /var/www
 
+echo "Waiting for MariaDB..."
 TIMEOUT=60
 COUNT=0
-while ! mysql --host="$WP_HOST" --port="$WP_PORT" --user="$WP_USER" --password="$(cat "$WP_PASSWORD")" -e "SELECT 1;" >/dev/null 2>&1;
-do
+while ! mysql --host="$WP_HOST" --port="$WP_PORT" --user="$WP_USER" --password="$(cat "$WP_PASSWORD")" -e "SELECT 1;" >/dev/null 2>&1; do
     if [ $COUNT -ge $TIMEOUT ]; then
-        echo "Error: MariaDB is unavailable"
+        echo "Error: MariaDB is still unavailable after $TIMEOUT seconds"
         exit 1
     fi
-    echo "Waiting for MariaDB... ${COUNT}/${TIMEOUT}s"
-    sleep 1
-    COUNT=$((COUNT + 1))
+    echo "MariaDB is unavailable: waiting 2 seconds..."
+    sleep 2
+    COUNT=$((COUNT + 2))
 done
 echo "MariaDB is ready!"
 
@@ -37,9 +37,9 @@ su www-data -s /bin/bash -c "
         
         wp core install --url="https://$DOMAIN_NAME" --title="$DOMAIN_NAME" --admin_user="$WP_USER" --admin_password="$(cat "$WP_PASSWORD")" --admin_email="$WP_ADMIN_EMAIL" --skip-email
     fi
-    if ! wp user get editor > /dev/null 2>&1; then
+    if ! wp user get $WP_EDITOR > /dev/null 2>&1; then
         echo 'Creating second user...'
-        wp user create $WP_AUTOR $WP_AUTOR_EMAIL --role=author --user_pass="$(cat "$WP_PASSWORD")"
+        wp user create $WP_EDITOR $WP_EDITOR_EMAIL --role=editor --user_pass="$(cat "$WP_PASSWORD")"
     fi
 "
 
