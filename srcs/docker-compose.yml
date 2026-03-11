@@ -39,7 +39,7 @@ services:
       WP_PORT: ${WP_PORT}
       WP_USER: ${WP_USER}
       WP_PASSWORD: /run/secrets/db_password
-      WP_ADMIN_EMAIL: ${WP_ADMIN_EMAIL}
+      WP_USER_EMAIL: ${WP_USER_EMAIL}
       WP_EDITOR: ${WP_EDITOR}
       WP_EDITOR_EMAIL: ${WP_EDITOR_EMAIL}
     networks:

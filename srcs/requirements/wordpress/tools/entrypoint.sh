@@ -35,7 +35,7 @@ su www-data -s /bin/bash -c "
 
         echo 'Installing WP and creating admin user...'
         
-        wp core install --url="https://$DOMAIN_NAME" --title="$DOMAIN_NAME" --admin_user="$WP_USER" --admin_password="$(cat "$WP_PASSWORD")" --admin_email="$WP_ADMIN_EMAIL" --skip-email
+        wp core install --url="https://$DOMAIN_NAME" --title="$DOMAIN_NAME" --admin_user="$WP_USER" --admin_password="$(cat "$WP_PASSWORD")" --admin_email="$WP_USER_EMAIL" --skip-email
     fi
     if ! wp user get $WP_EDITOR > /dev/null 2>&1; then
         echo 'Creating second user...'
