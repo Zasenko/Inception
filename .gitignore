@@ -1,0 +1,5 @@
+secrets/
+srcs/.env
+
+*.log
+.vscode/

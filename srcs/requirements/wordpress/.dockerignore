@@ -1,0 +1,10 @@
+.git
+.gitignore
+.dockerignore
+
+*.log
+*.md
+
+.env
+
+secrets
