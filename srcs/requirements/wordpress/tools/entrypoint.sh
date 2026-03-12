@@ -12,6 +12,7 @@ if ! command -v wp >/dev/null 2>&1 ; then
     wget https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
     chmod +x wp-cli.phar
     mv wp-cli.phar /usr/local/bin/wp
+    echo "WP-CLI installed successfully."
 else
     echo "Wp-cli already installed"
 fi
