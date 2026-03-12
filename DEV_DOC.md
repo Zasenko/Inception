@@ -262,27 +262,21 @@ make inspect-net
 
 Containers are ephemeral, meaning they can be destroyed or recreated at any time.
 
-Persistent data is stored using Docker volumes mapped to host directories.
-
-This ensures that database and website files remain available even if containers are rebuilt.
-
-### Persistent data location:
-
-`/home/<login>/data/`
+Persistent data is stored using Docker volumes mapped to host directories inside `/home/<login>/data`
 
 Example structure:
 ```
 /home/<login>/data/
-├── /mariadb
-└── /wordpress
+                ├── /mariadb
+                └── /wordpress
 ```
-
-| Volume    | Data                    |
-| --------- | ----------------------- |
-| mariadb   | MariaDB database files  |
-| wordpress | WordPress website files |
 
 This ensures that:
 - database data persists after container rebuilds
 - website files remain available
 - containers can be recreated without data loss
+
+| Volume    | Data                    |
+| --------- | ----------------------- |
+| mariadb   | MariaDB database files  |
+| wordpress | WordPress website files |
