@@ -1,15 +1,20 @@
 #!/bin/bash
 set -e
 
-wget https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
-chmod +x wp-cli.phar
-mv wp-cli.phar /usr/local/bin/wp
-
 mkdir -p /var/www/html
 mkdir -p /var/www/.wp-cli/cache
 
 chown -R www-data:www-data /var/www
 chmod -R 755 /var/www
+
+if ! command -v wp >/dev/null 2>&1 ; then
+    echo "Installing wp-cli..."
+    wget https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
+    chmod +x wp-cli.phar
+    mv wp-cli.phar /usr/local/bin/wp
+else
+    echo "Wp-cli already installed"
+fi
 
 echo "Waiting for MariaDB..."
 TIMEOUT=60
