@@ -13,7 +13,7 @@ chmod 700 $SSL_DIR
 if [ ! -f $KEY ] || [ ! -f $CRT ]; then
     echo "SSL certificate not found. Generating new self-signed certificate..."
 
-    openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout $KEY -out $CRT -subj="/C=MA/ST=dzasenko/L=dzasenko/O=1337 School/OU=dzasenko/CN=dzasenko.42.fr"
+    openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout $KEY -out $CRT -subj="/C=Austria/ST=Vienna/L=Vienna/O=42 School/OU=42 School/CN=dzasenko.42.fr"
     chmod 600 "$KEY"
     chmod 644 "$CRT"
 

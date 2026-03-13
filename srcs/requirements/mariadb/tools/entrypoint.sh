@@ -17,7 +17,7 @@ if [ ! -d "/var/lib/mysql/mysql" ] || [ ! -d "/var/lib/mysql/${MYSQL_DATABASE}" 
     fi
     
     echo "Starting temporary MariaDB for setup..."
-    mysqld --user=mysql --skip-networking & PID=$!
+    mysqld --user=mysql --skip-networking >/dev/null 2>&1 & PID=$!
     
     TIMEOUT=60
     COUNT=0
